@@ -4,6 +4,6 @@ import (
 	"github.com/Jamshid-Ismoilov/infrastructure/localize"
 )
 
-func Localize(service, word string) localize.Getter {
-	return localize.NewLocalizer(service, word)
+func Localize(service string) (server localize.ServiceGetter) {
+	return localize.NewLocalizer(service)
 }

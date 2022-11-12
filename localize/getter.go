@@ -2,34 +2,49 @@ package localize
 
 import "errors"
 
-func NewLocalizer(service, word string) Getter {
-	wordMap, ok := WordSource[service][word]
+func NewLocalizer(service string) (server ServiceGetter) {
+	serviceMap, ok := WordSource[service]
 	if !ok {
-		return Getter{Error: errors.New("Error in service name or word. (Cannot find word)")}
+		return ServiceGetter{Error: errors.New("Error in service name. (Cannot find service)")}
 	}
-	return Getter{
-		Word:  wordMap,
+	return ServiceGetter{
+		Service: serviceMap,
+		Error:   nil,
+	}
+}
+
+type WordGetter struct {
+	word  map[string]string
+	Error error
+}
+type ServiceGetter struct {
+	Service map[string]map[string]string
+	Error   error
+}
+
+func (s ServiceGetter) Localize(word string) WordGetter {
+	wordMap, ok := s.Service[word]
+	if !ok {
+		return WordGetter{Error: errors.New("Error in word. (Cannot find word)")}
+	}
+	return WordGetter{
+		word:  wordMap,
 		Error: nil,
 	}
 }
 
-type Getter struct {
-	Word  map[string]string
-	Error error
+func (l *WordGetter) Uzbek() string {
+	return l.word["uz"]
 }
 
-func (l *Getter) Uzbek() string {
-	return l.Word["uz"]
+func (l *WordGetter) Russian() string {
+	return l.word["ru"]
 }
 
-func (l *Getter) Russian() string {
-	return l.Word["ru"]
+func (l *WordGetter) English() string {
+	return l.word["en"]
 }
 
-func (l *Getter) English() string {
-	return l.Word["en"]
-}
-
-func (l *Getter) Other(language string) string {
-	return l.Word[language]
+func (l *WordGetter) Other(language string) string {
+	return l.word[language]
 }
